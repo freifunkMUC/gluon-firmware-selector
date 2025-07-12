@@ -326,7 +326,7 @@ var devices_recommended = {
     "PI1": { "raspberry-pi": "", "raspberrypi-model-b": "" },
     "PI2": { "raspberry-pi-2": "", "raspberrypi-2-model-b": "" },
     "PI3": { "raspberry-pi-3": "", "raspberrypi-3-model-b": "" },
-    "PI4": { "raspberry-pi-4": "", "raspberry-pi-4-model-b": "" },
+    "PI4": { "raspberry-pi-4-model-b": "", "raspberrypi-4-model-b": "" },
   },
 
   "RAVPower": {
