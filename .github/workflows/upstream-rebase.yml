@@ -1,0 +1,80 @@
+name: upstream-rebase
+
+on:
+  schedule:
+    - cron: "17 3 */3 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-rebase-main-ffmuc
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main-ffmuc
+        uses: actions/checkout@v4
+        with:
+          ref: main-ffmuc
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          # Set a deterministic commit identity for potential rebase metadata.
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch remotes
+        run: |
+          set -euo pipefail
+
+          # Ensure upstream exists even on fresh runners.
+          if ! git remote get-url upstream >/dev/null 2>&1; then
+            git remote add upstream https://github.com/freifunk-gluon/gluon-firmware-selector.git
+          fi
+
+          # Fetch the current managed branch from origin.
+          if ! git fetch --no-tags origin main-ffmuc; then
+            echo "Failed fetching origin/main-ffmuc. Check remote access and branch existence." >&2
+            exit 1
+          fi
+
+          # Fetch the latest upstream baseline we want to rebase onto.
+          if ! git fetch --no-tags upstream main; then
+            echo "Failed fetching upstream/main. Check upstream remote URL, network access, and branch existence." >&2
+            exit 1
+          fi
+
+      - name: Rebase main-ffmuc onto freifunk-gluon/gluon-firmware-selector/main
+        run: |
+          set -euo pipefail
+
+          # Reset local branch pointer to the remote branch state before rebasing.
+          git checkout -B main-ffmuc origin/main-ffmuc
+
+          # Replay ffmuc commits on top of upstream/main while keeping merge topology.
+          if ! git rebase --rebase-merges --empty=drop upstream/main; then
+            echo "Rebase failed due to conflicts or invalid history while applying main-ffmuc commits onto upstream/main." >&2
+            echo "One has to rebase manually, resolve conflicts, and push an updated main-ffmuc branch." >&2
+            exit 1
+          fi
+
+      - name: Push rebased branch (force-with-lease)
+        run: |
+          set -euo pipefail
+
+          # Skip push only when HEAD commit is identical to origin/main-ffmuc.
+          if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main-ffmuc)" ]; then
+            echo "No changes after rebase. Nothing to push."
+            exit 0
+          fi
+
+          # Update remote with rewritten history, but only if lease is still valid.
+          if ! git push --force-with-lease origin HEAD:main-ffmuc; then
+            echo "Push failed. Common causes: branch protection blocks force push or insufficient token permissions." >&2
+            exit 1
+          fi
