@@ -491,7 +491,8 @@ var devices_recommended = {
     "Mi Router 4A (Gigabit Edition)": { "xiaomi-mi-router-4a-gigabit-edition": "v1", "xiaomi-mi-router-4a-gigabit-edition-v2": "v2" },
     "Mi Router 4C": "xiaomi-mi-router-4c",
     "Mi Router AC2100": "xiaomi-mi-router-ac2100",
-    "MiWiFi Mini": "xiaomi-miwifi-mini"
+    "MiWiFi Mini": "xiaomi-miwifi-mini",
+    "Redmi Router AC2100": "xiaomi-redmi-router-ac2100"
   },
 
   "x86": {
