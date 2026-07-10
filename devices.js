@@ -153,6 +153,7 @@ var devices_recommended = {
 
   "FriendlyElec": {
     "NanoPi R2S": "friendlyelec-nanopi-r2s",
+    "NanoPi R2S Plus": "friendlyelec-nanopi-r2s-plus",
     "NanoPi R3S": "friendlyelec-nanopi-r3s",
     "NanoPi R4S": "friendlyelec-nanopi-r4s",
   },
